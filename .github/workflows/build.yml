@@ -16,43 +16,45 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
+      - name: SDK Android (plateforme 34 + build-tools 34)
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Install SDK packages
-        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
-
-      # Gradle 8.7 fixé : compatible avec le plugin Android 8.5.2 (pas besoin de gradlew)
-      - uses: gradle/actions/setup-gradle@v4
+      # Garde la même clé de signature d'un build à l'autre (sinon l'APK ne s'installe pas par-dessus l'ancien)
+      - uses: actions/cache@v4
         with:
-          gradle-version: '8.7'
+          path: roseos.keystore
+          key: roseos-keystore-v1
 
       - name: Build APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          chmod +x build.sh
+          ./build.sh
 
       - uses: actions/upload-artifact@v4
         with:
           name: RoseOS-androidtv
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: RoseOS.apk
 
-  webos-tizen-web:
+  webos-tizen:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.12'
 
-      - run: npm i -g @webos-tools/cli
+      - name: Build LG webOS (.ipk)
+        run: python3 webos/build.py
 
-      - name: Build webOS / Tizen / Web
-        run: |
-          chmod +x build.sh
-          ./build.sh webos
-          ./build.sh tizen
-          ./build.sh web
+      - name: Build Samsung Tizen (.wgt, non signé)
+        run: python3 tizen/build.py
 
       - uses: actions/upload-artifact@v4
         with:
-          name: RoseOS-webos-tizen-web
-          path: dist/
+          name: RoseOS-webos-tizen
+          path: |
+            RoseOS-webos.ipk
+            RoseOS-tizen.wgt
