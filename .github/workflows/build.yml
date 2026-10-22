@@ -1,0 +1,58 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install SDK packages
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      # Gradle 8.7 fixé : compatible avec le plugin Android 8.5.2 (pas besoin de gradlew)
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        run: gradle assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RoseOS-androidtv
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+  webos-tizen-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm i -g @webos-tools/cli
+
+      - name: Build webOS / Tizen / Web
+        run: |
+          chmod +x build.sh
+          ./build.sh webos
+          ./build.sh tizen
+          ./build.sh web
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RoseOS-webos-tizen-web
+          path: dist/
