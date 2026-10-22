@@ -16,7 +16,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-           - name: SDK Android (plateforme 34 + build-tools 34)
+      - name: SDK Android (plateforme 34 + build-tools 34)
         run: |
           SDKM=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -1)
           echo "sdkmanager : $SDKM"
