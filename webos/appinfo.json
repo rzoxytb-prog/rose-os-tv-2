@@ -1,0 +1,14 @@
+{
+  "id": "com.rose.tvos",
+  "version": "1.0.0",
+  "vendor": "Rose",
+  "type": "web",
+  "main": "index.html",
+  "title": "Rosé OS",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "bgImage": "splash.png",
+  "splashBackground": "#c23d86",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true
+}
