@@ -16,10 +16,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: SDK Android (plateforme 34 + build-tools 34)
+           - name: SDK Android (plateforme 34 + build-tools 34)
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+          SDKM=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -1)
+          echo "sdkmanager : $SDKM"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-34" "build-tools;34.0.0"
 
       # Garde la même clé de signature d'un build à l'autre (sinon l'APK ne s'installe pas par-dessus l'ancien)
       - uses: actions/cache@v4
